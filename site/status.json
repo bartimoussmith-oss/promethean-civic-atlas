@@ -1,0 +1,16 @@
+{
+  "project": "Promethean Civic Atlas",
+  "artifact_stage": "initial_construction_landing_page",
+  "live_hosting_verified": false,
+  "merged_registry_complete": false,
+  "regional_pages_in_this_build": 0,
+  "enabled_collectors": 0,
+  "source_verification": "pending_per_integration",
+  "workbook_versions_requested": 3,
+  "workbook_versions_imported_in_this_build": 0,
+  "notes": [
+    "Previously generated local preview files are not included in this initial repository bootstrap.",
+    "No workbook summary total is treated as verified coverage.",
+    "A repository commit is not proof of a live deployment."
+  ]
+}
