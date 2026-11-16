@@ -1,0 +1,59 @@
+name: Publish Civic Atlas to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: civic-atlas-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out publication source
+        uses: actions/checkout@v4
+      - name: Validate static publication directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s site/index.html
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('site')
+          assert not root.is_symlink(), 'Publication root must not be a symlink'
+          assert not any(p.is_symlink() for p in root.rglob('*')), 'Symlinks are not published'
+          status = json.loads((root / 'status.json').read_text())
+          assert status['enabled_collectors'] == 0, 'Construction deployment must not enable collectors'
+          assert status['merged_registry_complete'] is False, 'Merge completion requires separate review'
+          PY
+      - name: Configure existing GitHub Pages site
+        uses: actions/configure-pages@v5
+      - name: Upload only the public site directory
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - name: Deploy GitHub Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Record deployment result
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          printf '### Civic Atlas Pages deployment\n\nGitHub deployment URL: %s\n\nThis publishes the current construction landing page only. Regional pages, the merged workbook registry, and collection remain incomplete. External HTTP verification is still required.\n' "$PAGE_URL" >> "$GITHUB_STEP_SUMMARY"
