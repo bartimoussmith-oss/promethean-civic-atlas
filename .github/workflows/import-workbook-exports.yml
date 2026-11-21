@@ -1,0 +1,53 @@
+name: Import pinned workbook exports
+on:
+  push:
+    branches: [feat/import-wyoming-official-urls]
+    paths: [.github/workflows/import-workbook-exports.yml]
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and verify exact source exports
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, pathlib, urllib.request
+          source = 'https://raw.githubusercontent.com/therealwindycity/therealwindycity/f64705f586e3fa3bc86068f74556f8e8e0b426e6/exports/'
+          expected = {
+              'wyoming_official_urls.json': (686416, 'b56f25833bb0c87939a1f2c56b465679a710cd58'),
+              'wyoming_official_urls_manifest.json': (121399, '8ac4e13dec8d672015a366816c227b66d426e077'),
+          }
+          payloads = {}
+          for name, (size, blob) in expected.items():
+              with urllib.request.urlopen(source + name, timeout=60) as response:
+                  data = response.read()
+              assert len(data) == size, name + ': size mismatch'
+              assert hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest() == blob, name + ': blob mismatch'
+              json.loads(data)
+              payloads[name] = data
+          manifest = json.loads(payloads['wyoming_official_urls_manifest.json'])
+          assert manifest['workbook_versions_imported'] == 3
+          assert hashlib.sha256(payloads['wyoming_official_urls.json']).hexdigest() == manifest['artifact']['sha256']
+          pathlib.Path('data').mkdir(exist_ok=True)
+          for name, data in payloads.items():
+              (pathlib.Path('data') / name).write_bytes(data)
+          path = pathlib.Path('site/status.json')
+          status = json.loads(path.read_text())
+          status['workbook_versions_imported_in_this_build'] = 3
+          status['live_hosting_verified'] = False
+          status['enabled_collectors'] = 0
+          path.write_text(json.dumps(status, indent=2) + '\n')
+          PY
+      - name: Commit verified import on feature branch only
+        run: |
+          test "$GITHUB_REF" = refs/heads/feat/import-wyoming-official-urls
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/wyoming_official_urls.json data/wyoming_official_urls_manifest.json site/status.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'feat: import three workbook versions with verified provenance'
+            git push origin HEAD:feat/import-wyoming-official-urls
+          fi

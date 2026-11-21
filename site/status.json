@@ -7,7 +7,7 @@
   "enabled_collectors": 0,
   "source_verification": "pending_per_integration",
   "workbook_versions_requested": 3,
-  "workbook_versions_imported_in_this_build": 0,
+  "workbook_versions_imported_in_this_build": 3,
   "notes": [
     "Previously generated local preview files are not included in this initial repository bootstrap.",
     "No workbook summary total is treated as verified coverage.",
