@@ -1,0 +1,11 @@
+{
+  "state": "Arkansas",
+  "postal_code": "AR",
+  "similarity_rank": 32,
+  "relationship_to_wyoming": "Mid-South Interior Peer",
+  "status": "not_started",
+  "enabled_for_crawling": false,
+  "jurisdictions": [],
+  "legal_note": "All URLs are unverified candidates. Nothing is enabled for crawling until live-verified. Source data must be regenerated from public sources, not copied from private Drive workbooks.",
+  "copyright_holder": "CM (Charles Miller)"
+}

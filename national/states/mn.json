@@ -1,0 +1,11 @@
+{
+  "state": "Minnesota",
+  "postal_code": "MN",
+  "similarity_rank": 21,
+  "relationship_to_wyoming": "Upper Midwest Northern Peer",
+  "status": "not_started",
+  "enabled_for_crawling": false,
+  "jurisdictions": [],
+  "legal_note": "All URLs are unverified candidates. Nothing is enabled for crawling until live-verified. Source data must be regenerated from public sources, not copied from private Drive workbooks.",
+  "copyright_holder": "CM (Charles Miller)"
+}

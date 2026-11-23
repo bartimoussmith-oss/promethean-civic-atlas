@@ -1,0 +1,11 @@
+{
+  "state": "Nevada",
+  "postal_code": "NV",
+  "similarity_rank": 8,
+  "relationship_to_wyoming": "Mountain West Peer",
+  "status": "not_started",
+  "enabled_for_crawling": false,
+  "jurisdictions": [],
+  "legal_note": "All URLs are unverified candidates. Nothing is enabled for crawling until live-verified. Source data must be regenerated from public sources, not copied from private Drive workbooks.",
+  "copyright_holder": "CM (Charles Miller)"
+}
