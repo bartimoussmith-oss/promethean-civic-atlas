@@ -2,21 +2,43 @@
 Date: 2026-11-23
 By CM (Charles Miller)
 
-## What this batch did
+## What this batch did — with raw evidence
 
-- Backup branches `backup/cm-audit-20261123` created on 6 repos
-  (see "Backup branches" below). 28 further backup requests were
-  declined by Charles and were NOT retried.
-- One national repo created in a single batch run:
-  `bartimoussmith-oss/cm-civic-verification` (private), containing
-  this registry, 64 disabled state/territory/tribal stubs, README,
-  and the paid commercial license.
-- Wyoming template pushed in the same batch run:
-  - `therealwindycity/transcript-sync`: Wayback fetcher
-    `scripts/fetch_transcripts_wayback.py` + workflow
-    `.github/workflows/sync.yml` (no YouTube cookies, no yt-dlp).
-  - `bartimoussmith-oss/casper-record-mirror`: `wayback_source.py`
-    + patched `collect.py` (`--source wayback`, default `live`).
+Two single batch runs. No repo was created one at a time.
+
+### Batch run 1 (4 write calls)
+- create_repository `bartimoussmith-oss/cm-civic-verification`:
+  FAILED — 403 "Resource not accessible by integration". The GitHub
+  App installation cannot create new repositories. No new repo was
+  created through the connector.
+- push_files to that (non-existent) repo: FAILED — 404, consequence
+  of the failed creation.
+- push_files `therealwindycity/transcript-sync`: FAILED — 403 at
+  create-tree.
+- push_files `bartimoussmith-oss/casper-record-mirror`: SUCCESS —
+  commit f91e23292c0a18c2d16f5512595175b2c3d3ca51, 2026-11-23
+  23:35:10Z. Added `wayback_source.py` + patched `collect.py`
+  (`--source wayback`, default `live`). Verified live by read-back.
+
+### Batch run 2 (3 write calls)
+- create_or_update_file `therealwindycity/transcript-sync`
+  `scripts/fetch_transcripts_wayback.py`: SUCCESS — commit
+  c6815909e893d53f1162c07aa1a544f796ad9f41, 2026-11-23 23:36:29Z,
+  file SHA 2f66810d, 19,802 bytes. Verified live by read-back.
+- create_or_update_file `therealwindycity/transcript-sync`
+  `.github/workflows/sync.yml`: FAILED — 403 on PUT to
+  `.github/workflows/`. The App cannot write workflow files.
+  The workflow file must be added through the GitHub website UI,
+  or the App's workflow permission must be granted. The daily
+  sync cannot run in Actions until that file exists.
+- push_files `bartimoussmith-oss/promethean-civic-atlas` main:
+  SUCCESS — commit d66e70f2abab1f64e76426ecd9008b2f25fdf0d7,
+  2026-11-23 23:36:55Z. 68 files under `national/`:
+  `national-registry.json`, 64 state/territory/tribal stubs,
+  README, LICENSE-COMMERCIAL, BUILD-STATUS. Verified live by
+  read-back (`national/national-registry.json` SHA df428d02).
+  The national scaffolding lives in the existing atlas repo
+  because new-repo creation is blocked (see above).
 
 ## Backup branches — backup/cm-audit-20261123
 
@@ -37,17 +59,18 @@ The CM-named branches above are the replacements.
 
 ## Wyoming template — verification checklist
 
-- [ ] Casper pilot: `collect.py --source wayback --dry-run`
+- [x] Casper pilot, local: `collect.py --source wayback --dry-run`
       enumerates 155 documents (verified locally 2026-11-23).
-- [ ] Casper pilot: `--source wayback --max-new 5` in Actions,
-      manifest verified, before any full run.
-- [ ] Transcript sync: one successful Wayback run from
-      archive.org `cochwy` captions (31,449 words verified locally
-      for 2026-11-09 council, YouTube id LspPbRmg9xg).
+- [ ] Casper pilot, in Actions: `--source wayback --max-new 5`,
+      manifest verified, before any full run. Blocked until the
+      Casper workflow is confirmed runnable.
+- [x] Transcript fetcher, local: one run from archive.org `cochwy`
+      captions — 31,449 words for 2026-11-09 council
+      (YouTube id LspPbRmg9xg).
+- [ ] Transcript sync, in Actions: BLOCKED — `.github/workflows/sync.yml`
+      is not in the repo (403, see above). No daily run exists yet.
 - [ ] Only after a successful sync run: retire YOUTUBE_COOKIES
       and close Issue #2 in The-Real-Windy-City-.
-- [ ] BOPU / lead-pipe and Dec 14 hearing work are separate;
-      not part of this batch.
 
 ## Per-state status
 
@@ -56,10 +79,18 @@ The CM-named branches above are the replacements.
   Utah (5), Nebraska (6), Colorado (7), Nevada (8), New Mexico (9),
   Arizona (10), and all remaining entries in national-registry.json:
   not started. Configs disabled until live-verified.
-- No national total is claimed as verified coverage.
+- Registry has 64 entries: 50 states, District of Columbia,
+  5 territories, 8 tribal nations. No national total is claimed
+  as verified coverage.
 
 ## Blocked / not done in this batch
 
+- New-repo creation is 403-blocked for the GitHub App. To create
+  new repos, Charles must change the App installation/permissions
+  or create repos on the GitHub website. Until then, new content
+  goes into existing repos.
+- Workflow-file writes are 403-blocked. `sync.yml` must be added
+  via the GitHub website UI.
 - Two Drive credentials (Socrata session credential, C2 PIN) are
   still unrotated. They must be rotated in the source systems by
   Charles before any run that could use them. No values are recorded
